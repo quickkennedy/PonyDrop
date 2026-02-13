@@ -41,7 +41,8 @@ func spawn_fruit(type):
 	var new_fruit = Fruit.instantiate()
 	new_fruit.set_type(type)
 	add_child(new_fruit)
-	new_fruit.position = Vector2(550, 30)
+	# spawn it at the correct x
+	new_fruit.position = Vector2(get_local_mouse_position().x, -600)
 	return new_fruit
 
 func fuse_fruits(type, pos):

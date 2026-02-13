@@ -1,20 +1,24 @@
 extends RigidBody2D
 
+@export var pop_audio: AudioStreamPlayer
+
 var type = 0
 var type_textures = [
-	preload("res://cherry.png"),
-	preload("res://strawberry.png"),
-	preload("res://grape.png"),
-	preload("res://persimmon.png"),
-	preload("res://orange.png"),
-	preload("res://apple.png"),
-	preload("res://japanese_pear.png"),
-	preload("res://pear.png"),
-	preload("res://pineapple.png"),
-	preload("res://melon.png"),
-	preload("res://watermelon.png"),
+	preload("res://art/a.png"),
+	preload("res://art/b.png"),
+	preload("res://art/c.png"),
+	preload("res://art/d.png"),
+	preload("res://art/e.png"),
+	preload("res://art/f.png"),
+	preload("res://japanese_pear.png"), #
+	preload("res://pear.png"), #
+	preload("res://pineapple.png"), #
+	preload("res://melon.png"), #
+	preload("res://watermelon.png"), #
 ]
-var size_ratio = 1.0/3.0
+var size_ratio = 1.75/3.0 * 2
+
+# idk these are magic numbers! how did you come up with this????
 var type_sizes = [
 	1.0 * size_ratio,
 	1.25992104989487 * size_ratio,
@@ -46,15 +50,23 @@ var follows = true
 var fused = false
 var just_dropped = true
 
+func calc_size(t):
+	return type_sizes[t] * 0.7
+
+func calc_mass(t):
+	return 1 #(1 / (type_sizes[type] /  size_ratio)) * 200
+
 func set_type(t):
 	type = t
 	
 	var shape = get_node("CollisionShape2D")
-	shape.scale = Vector2(type_sizes[t], type_sizes[t])
+	shape.scale = Vector2(calc_size(t), calc_size(t))
 	
 	var sprite = get_node("Sprite2D")
-	sprite.scale = Vector2(type_sizes[t], type_sizes[t])
+	sprite.scale = Vector2(calc_size(t), calc_size(t))
 	sprite.texture = type_textures[t]
+	
+	mass = calc_mass(type)
 
 func start():
 	follows = false
@@ -67,10 +79,9 @@ func start():
 
 func _process(delta):
 	if follows:
-		move_and_collide(Vector2(
-			get_viewport().get_mouse_position().x - position.x,
-			0.0)
-		)
+		# move to the mouse's x
+		move_and_collide(Vector2(get_local_mouse_position().x,0))
+		
 		set_linear_velocity(Vector2(0.0, 0.0))
 	elif just_dropped:
 		var t = Timer.new()
@@ -84,6 +95,9 @@ func _process(delta):
 		
 		just_dropped = false
 
+#func _ready():
+	#pop_audio.play()
+
 func _on_body_entered(body):
 	if fused == false && body.has_signal("body_entered") \
 	&& body.type == type && body.fused == false:
@@ -93,9 +107,9 @@ func _on_body_entered(body):
 		var new_pos = (body.position + position) / 2.0
 		var main = get_node("/root/MainScene")
 		
-		var audio = main.get_node("Pop")
-		audio.pitch_scale = 1.25 - type * 0.05
-		audio.play()
+		# AUDIO DOESNT WORK IDK.
+		#pop_audio.pitch_scale = 1.25 - type * 0.05
+		#pop_audio.play()
 		
 		var score = main.get_node("Score")
 		score.add_score(type_scores[type])

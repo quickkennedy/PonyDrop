@@ -21,7 +21,7 @@ func _on_body_entered(body):
 		print("entered")
 
 func _on_body_exited(body):
-	for i in overlapping_bodies.size():
+	for i in range(overlapping_bodies.size() - 1, -1, -1):
 		if overlapping_bodies[i] == body:
 			overlapping_bodies.remove_at(i)
 			print("exited")
